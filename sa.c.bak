@@ -1,0 +1,83 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include <time.h>
+
+#define delta_t 0.98
+#define k 0.1
+#define DOWN 20
+#define UP 2000
+
+#define COUNT 1000
+
+typedef struct temp
+{
+    double x;
+    double fx;
+}temp;
+
+double fx(double x)
+{
+    return sin(2*x) + log(x);
+}
+
+void init_fire(temp *inst)
+{
+    srand((unsigned int)time(NULL));
+
+    inst->x = random() % (UP - DOWN + 1) + DOWN ;
+    inst->fx = fx(inst->x);
+}
+
+void start(temp *inst)
+{
+    srand((unsigned int)time(NULL));
+
+    int i;
+    double p;
+    
+    double new_x;
+    double t = UP;
+
+    double current;
+    double dE;
+
+    while( t  > DOWN )
+    {
+        for(i=0;i<COUNT;i++)
+        {
+            
+            new_x = random() % (UP - DOWN + 1) + DOWN;
+            current = fx(new_x);
+            dE = current - inst->fx;
+
+            if(dE < 0)
+            {
+                inst->x = new_x;
+                inst->fx = current;
+            }
+            else
+            {
+                p = (random() % 100 + 1) / 100.0;
+                if( exp(dE / (t*k)) > p)
+                {
+                    inst->x = new_x;
+                    inst->fx = current;
+                }
+            }
+        }
+        t = t * delta_t;
+    }
+}
+
+int main(void)
+{
+    temp fire;
+    init_fire(&fire);
+
+    start(&fire);
+
+    printf("x %f y %f\n", fire.x , fire.fx);
+
+    return 0;
+}
